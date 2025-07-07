@@ -39,6 +39,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "users",
+    "corsheaders",
+]
+
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Adicione esta linha no topo ou próximo ao topo
+    'django.middleware.security.SecurityMiddleware',
+    # ... o restante das suas middlewares
 ]
 
 MIDDLEWARE = [
@@ -123,3 +131,47 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.CustomUser'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # Autenticação JWT
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', # Padrão: tudo exige autenticação, a menos que especificado
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10, # Opcional: Define a paginação padrão
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Tempo de vida do token de acesso
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),   # Tempo de vida do token de refresh
+    'ROTATE_REFRESH_TOKENS': True, # Gera um novo refresh token a cada refresh
+    'BLACKLIST_AFTER_ROTATION': True, # Blacklist o refresh token antigo
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY, # Usa a SECRET_KEY do Django para assinar os tokens
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'JWK_URL': None,
+    'LEEWAY': 0,
+
+    'AUTH_HEADER_TYPES': ('Bearer',), # Tipo de cabeçalho de autorização (ex: Authorization: Bearer <token>)
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}
+
