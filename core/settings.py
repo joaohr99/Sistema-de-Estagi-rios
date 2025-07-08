@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,11 +41,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "corsheaders",
+    "drf_spectacular",
 ]
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Adicione esta linha no topo ou próximo ao topo
+    # Adicione esta linha no topo ou próximo ao topo
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # ... o restante das suas middlewares
 ]
@@ -135,31 +138,36 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication', # Autenticação JWT
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Autenticação JWT
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated', # Padrão: tudo exige autenticação, a menos que especificado
+        # Padrão: tudo exige autenticação, a menos que especificado
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10, # Opcional: Define a paginação padrão
+    'PAGE_SIZE': 10,  # Opcional: Define a paginação padrão
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Tempo de vida do token de acesso
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),   # Tempo de vida do token de refresh
-    'ROTATE_REFRESH_TOKENS': True, # Gera um novo refresh token a cada refresh
-    'BLACKLIST_AFTER_ROTATION': True, # Blacklist o refresh token antigo
+    # Tempo de vida do token de acesso
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # Tempo de vida do token de refresh
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,  # Gera um novo refresh token a cada refresh
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklist o refresh token antigo
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY, # Usa a SECRET_KEY do Django para assinar os tokens
+    'SIGNING_KEY': SECRET_KEY,  # Usa a SECRET_KEY do Django para assinar os tokens
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
     'JWK_URL': None,
     'LEEWAY': 0,
 
-    'AUTH_HEADER_TYPES': ('Bearer',), # Tipo de cabeçalho de autorização (ex: Authorization: Bearer <token>)
+    # Tipo de cabeçalho de autorização (ex: Authorization: Bearer <token>)
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
@@ -175,3 +183,11 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Sistema de Acompanhamento de Estágios',
+    'DESCRIPTION': 'Documentação completa da API para gerenciar usuários e progresso de estagiários em UPAs.',
+    'VERSION': '1.0.0',
+    # Recomendado para não servir o schema diretamente em produção
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Mais opções podem ser adicionadas aqui
+}
